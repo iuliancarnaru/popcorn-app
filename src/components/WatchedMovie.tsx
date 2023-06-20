@@ -1,6 +1,12 @@
 import { WatchedMovieType } from "../types";
 
-function WatchedMovie({ movie }: { movie: WatchedMovieType }) {
+function WatchedMovie({
+  movie,
+  onDeleteWatched,
+}: {
+  movie: WatchedMovieType;
+  onDeleteWatched: (id: string) => void;
+}) {
   return (
     <li>
       <img src={movie.poster} alt={`${movie.title} poster`} />
@@ -18,6 +24,12 @@ function WatchedMovie({ movie }: { movie: WatchedMovieType }) {
           <span>⏳</span>
           <span>{movie.runtime} min</span>
         </p>
+        <button
+          className="btn-delete"
+          onClick={() => onDeleteWatched(movie.imdbID)}
+        >
+          &times;
+        </button>
       </div>
     </li>
   );

@@ -7,16 +7,26 @@ function MovieDetails({
   selectedId,
   onCloseMovie,
   onAddWatched,
+  watched,
 }: {
   selectedId: string;
   onCloseMovie: () => void;
   onAddWatched: (movie: WatchedMovieType) => void;
+  watched: WatchedMovieType[];
 }) {
   const [movie, setMovie] = useState<MovieDetailsType | Record<string, never>>(
     {}
   );
   const [userRating, setUserRating] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+
+  const hasBeenWatched = watched
+    .map((movie) => movie.imdbID)
+    .includes(selectedId);
+
+  const watchedUserRating = watched.find(
+    (movie) => movie.imdbID === selectedId
+  )?.userRating;
 
   function handleAdd() {
     const newWatchedMovie: WatchedMovieType = {
@@ -77,15 +87,23 @@ function MovieDetails({
 
           <section>
             <div className="rating">
-              <StarRating
-                maxRating={10}
-                size={24}
-                onSetRating={setUserRating}
-              />
-              {userRating > 0 && (
-                <button className="btn-add" onClick={handleAdd}>
-                  + Add to list
-                </button>
+              {hasBeenWatched ? (
+                <p>
+                  You rated this movie {watchedUserRating} <span>⭐</span>
+                </p>
+              ) : (
+                <>
+                  <StarRating
+                    maxRating={10}
+                    size={24}
+                    onSetRating={setUserRating}
+                  />
+                  {userRating > 0 && (
+                    <button className="btn-add" onClick={handleAdd}>
+                      + Add to list
+                    </button>
+                  )}
+                </>
               )}
             </div>
 
