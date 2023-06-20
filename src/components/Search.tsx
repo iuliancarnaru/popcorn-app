@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 interface SearchProps {
   query: string;
   onSetQuery: (value: string) => void;

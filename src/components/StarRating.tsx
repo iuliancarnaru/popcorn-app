@@ -17,7 +17,7 @@ interface StarRatingProps {
   className?: string;
   messages?: string[];
   defaultRating?: number;
-  onSetRating?: (index: number) => void;
+  onSetRating?: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default function StarRating({
