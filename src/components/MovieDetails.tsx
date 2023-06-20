@@ -61,6 +61,28 @@ function MovieDetails({
     getMovieDetails();
   }, [selectedId]);
 
+  useEffect(() => {
+    document.title = `Movie | ${movie.Title}`;
+
+    return () => {
+      document.title = "Popcorn App";
+    };
+  }, [movie]);
+
+  useEffect(() => {
+    const callback = (e: KeyboardEvent) => {
+      if (e.code === "Escape") {
+        onCloseMovie();
+      }
+    };
+
+    document.addEventListener("keydown", callback);
+
+    return () => {
+      document.removeEventListener("keydown", callback);
+    };
+  }, [onCloseMovie]);
+
   return (
     <div className="details">
       {isLoading ? (

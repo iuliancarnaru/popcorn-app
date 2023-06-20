@@ -37,6 +37,8 @@ export default function App() {
   }
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function fetchMovies() {
       try {
         setError("");
@@ -45,7 +47,8 @@ export default function App() {
         const res = await fetch(
           `http://www.omdbapi.com/?apikey=${
             import.meta.env.VITE_OMDB_API_KEY
-          }&s=${query}`
+          }&s=${query}`,
+          { signal: controller.signal }
         );
 
         if (!res.ok) {
@@ -59,8 +62,11 @@ export default function App() {
         }
 
         setMovies(data.Search);
+        setError("");
       } catch (error) {
-        setError((error as Error).message);
+        if ((error as Error).name !== "AbortError") {
+          setError((error as Error).message);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -73,6 +79,10 @@ export default function App() {
     }
 
     fetchMovies();
+
+    return () => {
+      controller.abort();
+    };
   }, [query]);
 
   return (
