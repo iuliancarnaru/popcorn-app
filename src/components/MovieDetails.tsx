@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { MovieDetailsType, WatchedMovieType } from "../types";
 import StarRating from "./StarRating";
 import Loader from "./Loader";
@@ -19,6 +19,7 @@ function MovieDetails({
   );
   const [userRating, setUserRating] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const countRef = useRef(0);
 
   const hasBeenWatched = watched
     .map((movie) => movie.imdbID)
@@ -37,6 +38,7 @@ function MovieDetails({
       imdbRating: Number(movie.imdbRating),
       userRating,
       runtime: Number(movie.Runtime?.split(" ").at(0)),
+      countRatingDecisions: countRef.current,
     };
 
     onAddWatched(newWatchedMovie);
@@ -82,6 +84,12 @@ function MovieDetails({
       document.removeEventListener("keydown", callback);
     };
   }, [onCloseMovie]);
+
+  useEffect(() => {
+    if (userRating) {
+      countRef.current += 1;
+    }
+  }, [userRating]);
 
   return (
     <div className="details">

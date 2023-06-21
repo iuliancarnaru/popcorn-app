@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import NavBar from "./components/NavBar";
 import Search from "./components/Search";
 import NumResults from "./components/NumResults";
@@ -10,23 +10,27 @@ import WatchedMoviesList from "./components/WatchedMovieList";
 import Loader from "./components/Loader";
 import ErrorMessage from "./components/ErrorMessage";
 import MovieDetails from "./components/MovieDetails";
-import type { MovieType, WatchedMovieType } from "./types";
+import type { WatchedMovieType } from "./types";
+import { useMovies } from "./hooks/useMovies";
+import { useLocalStorage } from "./hooks/useLocalStorage";
 
 export default function App() {
-  const [movies, setMovies] = useState<MovieType[]>([]);
-  const [watched, setWatched] = useState<WatchedMovieType[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [watched, setWatched] = useLocalStorage<WatchedMovieType[]>(
+    "watched",
+    []
+  );
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [error, setError] = useState("");
   const [query, setQuery] = useState("");
 
   function handleSelectMovie(movieId: string) {
     setSelectedId((selectedId) => (movieId === selectedId ? null : movieId));
   }
 
-  function handleCloseMovie() {
+  const handleCloseMovie = useCallback(() => {
     setSelectedId(null);
-  }
+  }, []);
+
+  const { movies, isLoading, error } = useMovies(query, handleCloseMovie);
 
   function handleAddWatched(movie: WatchedMovieType) {
     setWatched((watched) => [...watched, movie]);
@@ -35,56 +39,6 @@ export default function App() {
   function handleDeleteWatched(id: string) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    async function fetchMovies() {
-      try {
-        setError("");
-        setIsLoading(true);
-
-        const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${
-            import.meta.env.VITE_OMDB_API_KEY
-          }&s=${query}`,
-          { signal: controller.signal }
-        );
-
-        if (!res.ok) {
-          throw new Error("Unable to fetch movies...");
-        }
-
-        const data = await res.json();
-
-        if (data.Response === "False") {
-          throw new Error("Movie not found...");
-        }
-
-        setMovies(data.Search);
-        setError("");
-      } catch (error) {
-        if ((error as Error).name !== "AbortError") {
-          setError((error as Error).message);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    if (query.length < 3) {
-      setMovies([]);
-      setError("");
-      return;
-    }
-
-    handleCloseMovie();
-    fetchMovies();
-
-    return () => {
-      controller.abort();
-    };
-  }, [query]);
 
   return (
     <>

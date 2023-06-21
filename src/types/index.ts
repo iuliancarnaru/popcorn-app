@@ -61,4 +61,5 @@ export type WatchedMovieType = {
   imdbRating: number;
   userRating: number;
   runtime: number;
+  countRatingDecisions: number;
 };
